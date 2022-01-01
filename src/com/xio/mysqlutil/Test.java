@@ -3,14 +3,48 @@ package com.xio.mysqlutil;
 import java.util.List;
 import java.util.Map;
 
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.JsonMappingException;
+import com.fasterxml.jackson.databind.ObjectMapper;
+
 public class Test {
-	public static void main(String[] args) {
+	public static void main(String[] args) throws JsonMappingException, JsonProcessingException {
+		// mysqlUtilTest();
+
+		jacksonTest();
+	}
+
+	private static void jacksonTest() throws JsonMappingException, JsonProcessingException {
+		ObjectMapper om = new ObjectMapper();
+
+		// jsonString to Map
+		// {"id":1, "title":"제목"}
+		String jsonStr1 = "{\"id\":1,\"title\":\"제목\",\"body\":\"내용\",\"memberId\":1}";
+		Map map1 = om.readValue(jsonStr1, Map.class);
+		System.out.println("map1.get(\"id\") : " + map1.get("id"));
+		System.out.println("(int)map1.get(\"id\") + 1 : " + ((int) map1.get("id") + 1));
+		System.out.println("map1.get(\"title\") : " + map1.get("title"));
+
+		// jsonString to Article
+		// {"id":1, "title":"제목"}
+		Article article1 = om.readValue(jsonStr1, Article.class);
+		System.out.println(article1);
+
+		// map to Article
+		Article articl2 = om.convertValue(map1, Article.class);
+		System.out.println(articl2);
+	}
+
+	private static void mysqlUtilTest() {
 		MysqlUtil.setDBInfo("localhost", "sbsst", "sbs123414", "mysqlutil");
 
 		MysqlUtil.setDevMode(true);
+
 		// select rows
 		SecSql sql1 = new SecSql();
-		sql1.append("SELECT * FROM article order by id desc");
+		sql1.append("SELECT * FROM article ORDER BY id DESC");
+
 		List<Map<String, Object>> articleListMap = MysqlUtil.selectRows(sql1);
 		System.out.println("articleListMap : " + articleListMap);
 
@@ -42,40 +76,49 @@ public class Test {
 		String newTitle = "새 제목";
 		String newBody = "새 내용";
 
-		SecSql sql6 = new SecSql();
-		sql6.append("INSERT INTO article");
+		SecSql sql6 = new SecSql().append("INSERT INTO article");
 		sql6.append("SET regDate = NOW()");
 		sql6.append(", updateDate = NOW()");
 		sql6.append(", title = ?", newTitle);
 		sql6.append(", body = ?", newBody);
 		int newArticleId = MysqlUtil.insert(sql6);
-		System.out.println("newArticleId" + newArticleId);
+		System.out.println("newArticleId : " + newArticleId);
 
 		// update
 		SecSql sql7 = new SecSql();
-		sql7.append("update article");
-		sql7.append("set updateDate = now()");
+		sql7.append("UPDATE article");
+		sql7.append("SET updateDate = NOW()");
 		sql7.append(", title = CONCAT(title, '_NEW')");
 		sql7.append("WHERE id = ?", 3);
 		MysqlUtil.update(sql7);
 
-		// select title id 3
 		SecSql sql8 = new SecSql();
-		sql8.append("select title from article where id = ?", 3);
+		sql8.append("SELECT title FROM article WHERE id = ?", 3);
 		String article3__title = MysqlUtil.selectRowStringValue(sql8);
 		System.out.println("article3__title : " + article3__title);
 
 		// delete
 		SecSql sql9 = new SecSql();
-		sql9.append("delete from article where id = ?", newArticleId);
+		sql9.append("DELETE FROM article WHERE id = ?", newArticleId);
 		MysqlUtil.delete(sql9);
 
-		// count
 		SecSql sql10 = new SecSql();
-		sql10.append("select count(*) as cnt from article where id = ?", newArticleId);
+		sql10.append("SELECT COUNT(*) AS cnt FROM article WHERE id = ?", newArticleId);
 		int count = MysqlUtil.selectRowIntValue(sql10);
 		System.out.println("count : " + count);
 
 		MysqlUtil.closeConnection();
+	}
+}
+
+@JsonIgnoreProperties(ignoreUnknown = true)
+class Article {
+	public int id;
+	public String title;
+	public String body;
+
+	@Override
+	public String toString() {
+		return "Article [id=" + id + ", title=" + title + ", body=" + body + "]";
 	}
 }

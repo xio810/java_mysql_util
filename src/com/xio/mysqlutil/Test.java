@@ -5,17 +5,83 @@ import java.util.Map;
 
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.JsonMappingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 
 public class Test {
 	public static void main(String[] args) throws JsonMappingException, JsonProcessingException {
+		// mysqlUtil 기본 테스트
 		// mysqlUtilTest();
 
-		jacksonTest();
+		// jackson 기본 테스트
+		// jacksonTest1();
+
+		// 리스트 파싱 테스트 1
+		// jacksonListTest1();
+		// 리스트 파싱 테스트 2
+		// jacksonListTest2();
+		// 리스트 파싱 테스트 3
+		// jacksonListTest3();
+		// 리스트 파싱 테스트 4
+		jacksonListTest4();
 	}
 
-	private static void jacksonTest() throws JsonMappingException, JsonProcessingException {
+	private static void jacksonListTest4() throws JsonMappingException, JsonProcessingException {
+		ObjectMapper om = new ObjectMapper();
+
+		// jsonString to List<Map<String, Object>>
+		// List<Map<String, Object>> to List<Article>
+		String jsonStr1 = "[{\"id\":2,\"title\":\"제목2\",\"body\":\"내용2\",\"memberId\":2}, {\"id\":1,\"title\":\"제목1\",\"body\":\"내용1\",\"memberId\":1}]";
+
+		List<Map<String, Object>> list1 = om.readValue(jsonStr1, new TypeReference<List<Map<String, Object>>>() {
+		});
+
+		List<Article> list2 = om.convertValue(list1, new TypeReference<List<Article>>() {
+		});
+
+		System.out.println(list2);
+	}
+
+	private static void jacksonListTest3() throws JsonMappingException, JsonProcessingException {
+		ObjectMapper om = new ObjectMapper();
+
+		// jsonString to List<Article>
+		String jsonStr1 = "[{\"id\":2,\"title\":\"제목2\",\"body\":\"내용2\",\"memberId\":2}, {\"id\":1,\"title\":\"제목1\",\"body\":\"내용1\",\"memberId\":1}]";
+
+		List<Article> list1 = om.readValue(jsonStr1, new TypeReference<List<Article>>() {
+		});
+		System.out.println(list1);
+		System.out.println(list1.get(0));
+		System.out.println(list1.get(0).id);
+	}
+
+	private static void jacksonListTest2() throws JsonMappingException, JsonProcessingException {
+		ObjectMapper om = new ObjectMapper();
+
+		// jsonString to List<Map<String, Object>>
+		String jsonStr1 = "[{\"id\":2,\"title\":\"제목2\",\"body\":\"내용2\",\"memberId\":2}, {\"id\":1,\"title\":\"제목1\",\"body\":\"내용1\",\"memberId\":1}]";
+
+		List<Map<String, Object>> list1 = om.readValue(jsonStr1, new TypeReference<List<Map<String, Object>>>() {
+		});
+		System.out.println(list1);
+		System.out.println(list1.get(0));
+		System.out.println(list1.get(0).get("id"));
+	}
+
+	private static void jacksonListTest1() throws JsonMappingException, JsonProcessingException {
+		ObjectMapper om = new ObjectMapper();
+
+		// jsonString to List
+		String jsonStr1 = "[{\"id\":2,\"title\":\"제목2\",\"body\":\"내용2\",\"memberId\":2}, {\"id\":1,\"title\":\"제목1\",\"body\":\"내용1\",\"memberId\":1}]";
+
+		List list1 = om.readValue(jsonStr1, List.class);
+		System.out.println(list1);
+		System.out.println(list1.get(0));
+		System.out.println(((Map) list1.get(0)).get("id"));
+	}
+
+	private static void jacksonTest1() throws JsonMappingException, JsonProcessingException {
 		ObjectMapper om = new ObjectMapper();
 
 		// jsonString to Map

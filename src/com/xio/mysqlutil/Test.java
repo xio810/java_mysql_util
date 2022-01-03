@@ -24,7 +24,28 @@ public class Test {
 		// 리스트 파싱 테스트 3
 		// jacksonListTest3();
 		// 리스트 파싱 테스트 4
-		jacksonListTest4();
+		// jacksonListTest4();
+
+		mysqlUtilJacksonTest();
+	}
+
+	private static void mysqlUtilJacksonTest() {
+		MysqlUtil.setDBInfo("localhost", "sbsst", "sbs123414", "mysqlutil");
+
+		MysqlUtil.setDevMode(true);
+
+		// select rows
+		SecSql sql1 = new SecSql();
+		sql1.append("SELECT * FROM article ORDER BY id DESC");
+
+		List<Article> articleList = MysqlUtil.selectRows(sql1, Article.class);
+		System.out.println("articleList : " + articleList);
+
+		// select row
+		SecSql sql2 = new SecSql();
+		sql2.append("SELECT * FROM article WHERE id = ?", 1);
+		Article article = MysqlUtil.selectRow(sql2, Article.class);
+		System.out.println("article : " + article);
 	}
 
 	private static void jacksonListTest4() throws JsonMappingException, JsonProcessingException {
@@ -111,8 +132,8 @@ public class Test {
 		SecSql sql1 = new SecSql();
 		sql1.append("SELECT * FROM article ORDER BY id DESC");
 
-		List<Map<String, Object>> articleListMap = MysqlUtil.selectRows(sql1);
-		System.out.println("articleListMap : " + articleListMap);
+		List<Map<String, Object>> articleMapList = MysqlUtil.selectRows(sql1);
+		System.out.println("articleMapList : " + articleMapList);
 
 		// select row
 		SecSql sql2 = new SecSql();
